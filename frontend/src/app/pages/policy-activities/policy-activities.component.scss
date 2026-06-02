@@ -1,0 +1,42 @@
+.back-link {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.policy-meta {
+  margin: 0.25rem 0 0;
+  color: var(--color-muted);
+  font-size: 0.95rem;
+}
+
+.policy-desc {
+  margin: 0.35rem 0 0;
+  color: var(--color-text);
+  font-size: 0.9rem;
+  max-width: 720px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.detail-list {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 0.5rem 1rem;
+  margin: 1rem 0;
+
+  dt {
+    font-weight: 600;
+    color: var(--color-muted);
+  }
+
+  dd {
+    margin: 0;
+  }
+}
