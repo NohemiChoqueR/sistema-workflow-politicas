@@ -35,7 +35,8 @@ public class CorsConfig {
                 "http://localhost:4200",
                 "https://sistema-workflow-1-er-parcial-sw1.vercel.app",
                 "https://sistema-workflow-1-er-parcial-sw1-*.vercel.app",
-                "https://*.vercel.app"
+                "https://*.vercel.app",
+                "https://sistema-workflow-politicas-frontend.onrender.com"
         ));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
