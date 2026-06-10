@@ -1,0 +1,76 @@
+<div class="page-crud">
+  <div class="page-toolbar">
+    <div>
+      <h1>Guía asistente IA</h1>
+      <p>Referencia de funcionalidades del sistema Workflow — Ciclo 1</p>
+    </div>
+  </div>
+
+  <div class="ai-container">
+    <div class="ai-info-box">
+      <div class="info-icon">
+        <i class="material-icons">info</i>
+      </div>
+      <div class="info-text">
+        <p>
+          El sistema integra asistencia IA en el <strong>Diseñador workflow</strong> (prompt por texto y dictado por voz)
+          y en el <strong>Formulario de ejecución</strong> (informe libre y sugerencias de valores).
+          La IA solo sugiere; usted revisa y confirma antes de aplicar cambios.
+        </p>
+        <p>
+          <strong>Integración:</strong> Diseñador UML → panel <em>Asistente IA</em> · Mis tareas → <em>Asistencia IA</em> en el formulario.
+        </p>
+      </div>
+    </div>
+
+    <div class="ai-chat-card">
+      <div class="ai-history">
+        @if (!response && !loading) {
+          <div class="empty-chat">
+            <i class="material-icons">psychology</i>
+            <p>¿En qué módulo del sistema necesita orientación?</p>
+          </div>
+        }
+        @if (loading) {
+          <div class="ai-loading">
+            <div class="spinner"></div>
+            <span>Consultando guía...</span>
+          </div>
+        }
+        @if (response) {
+          <div class="ai-response-box">
+            <div class="response-header">
+              <i class="material-icons">auto_awesome</i>
+              <span>Respuesta de la guía</span>
+            </div>
+            <pre class="response-content">{{ response }}</pre>
+            <div class="response-actions">
+              <button type="button" class="btn btn-secondary btn-sm" (click)="copyResponse()">Copiar</button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="ai-suggestions">
+        <p>Preguntas frecuentes:</p>
+        <div class="suggestion-chips">
+          @for (s of suggestions; track s) {
+            <button type="button" class="chip" (click)="sendPrompt(s)">{{ s }}</button>
+          }
+        </div>
+      </div>
+
+      <div class="ai-input-area">
+        <textarea
+          [(ngModel)]="prompt"
+          placeholder="Escriba su consulta (ej.: ¿Cómo usar dictado por voz en el diseñador?)"
+          (keyup.enter)="sendPrompt()"
+        ></textarea>
+        <button type="button" class="btn btn-primary" [disabled]="loading || !prompt.trim()" (click)="sendPrompt()">
+          <i class="material-icons">send</i>
+          Consultar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

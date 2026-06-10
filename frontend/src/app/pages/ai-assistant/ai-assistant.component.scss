@@ -1,0 +1,265 @@
+/* AI Assistant styles */
+.ai-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.guide-section {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.guide-heading {
+  margin: 0 0 1rem;
+  font-size: 1.1rem;
+  color: #2c3e6b;
+}
+
+.guide-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.guide-card {
+  position: relative;
+  padding: 1rem 1rem 1rem 2.75rem;
+  background: #f8f7fc;
+  border: 1px solid #e8e4f0;
+  border-radius: 8px;
+
+  h3 {
+    margin: 0 0 0.5rem;
+    font-size: 0.95rem;
+    color: #2c3e6b;
+  }
+
+  p {
+    margin: 0 0 0.45rem;
+    font-size: 0.85rem;
+    line-height: 1.45;
+    color: #4a4458;
+  }
+
+  code {
+    font-size: 0.8rem;
+    background: #ede9f5;
+    padding: 0.1rem 0.35rem;
+    border-radius: 4px;
+  }
+}
+
+.guide-num {
+  position: absolute;
+  left: 0.75rem;
+  top: 0.85rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #7c6fbe;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 50%;
+}
+
+.guide-example {
+  font-style: italic;
+  color: #5c5670 !important;
+}
+
+.guide-route {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8rem !important;
+  color: #7c6fbe !important;
+  font-weight: 600;
+
+  .material-icons {
+    font-size: 1rem;
+  }
+}
+
+.guide-cycle2 {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  margin: 1rem 0 0;
+  padding: 0.75rem 1rem;
+  background: #fff8e6;
+  border: 1px solid #f0d9a8;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: #6b5a2e;
+
+  .material-icons {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+}
+
+.ai-info-box {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: #f0f7ff;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #3b82f6;
+
+  .info-icon {
+    color: #3b82f6;
+  }
+  
+  .info-text p {
+    margin: 0;
+    color: #1e3a8a;
+  }
+}
+
+.ai-chat-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  min-height: 420px;
+  max-height: 500px;
+}
+
+.ai-history {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  border-bottom: 1px solid #eee;
+}
+
+.empty-chat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #999;
+  
+  i { font-size: 64px; margin-bottom: 10px; }
+}
+
+.ai-response-box {
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  
+  .response-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    color: #7c6fbe;
+    font-weight: bold;
+  }
+  
+  pre {
+    background: transparent;
+    border: none;
+    padding: 0;
+    white-space: pre-wrap;
+    font-family: inherit;
+  }
+}
+
+.response-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.ai-suggestions {
+  padding: 15px 20px;
+  border-bottom: 1px solid #eee;
+  
+  p { margin: 0 0 10px 0; font-weight: bold; font-size: 0.9em; }
+}
+
+.suggestion-chips {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  
+  .chip {
+    padding: 6px 12px;
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    font-size: 0.85em;
+    cursor: pointer;
+    transition: all 0.2s;
+    
+    &:hover {
+      background: #7c6fbe;
+      color: white;
+      border-color: #7c6fbe;
+    }
+  }
+}
+
+.ai-input-area {
+  padding: 20px;
+  display: flex;
+  gap: 15px;
+  
+  textarea {
+    flex: 1;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    resize: none;
+    height: 60px;
+    
+    &:focus {
+      outline: none;
+      border-color: #7c6fbe;
+    }
+  }
+  
+  button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    width: 80px;
+    
+    i { font-size: 20px; }
+  }
+}
+
+.ai-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px;
+  color: #7c6fbe;
+}
+
+.spinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #7c6fbe;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

@@ -1,0 +1,102 @@
+<div class="page-crud">
+  <div class="page-toolbar">
+    <div>
+      <h1>Seguimiento de trámites</h1>
+      <p>Vista para supervisión y atención al cliente — actualización automática cada 12 s</p>
+      @if (lastUpdated) {
+        <p class="sync-hint">Última actualización: {{ formatDate(lastUpdated.toISOString()) }}</p>
+      }
+    </div>
+    <button type="button" class="btn btn-secondary" (click)="load()">Actualizar</button>
+  </div>
+
+  @if (error) { <div class="alert error">{{ error }}</div> }
+
+  <div class="data-card">
+    @if (loading) {
+      <div class="loading">Cargando seguimiento...</div>
+    } @else if (!tramites.length) {
+      <div class="empty-state">No hay trámites registrados para seguimiento.</div>
+    } @else {
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Política</th>
+              <th>Estado</th>
+              <th>Actividad</th>
+              <th>Responsable</th>
+              <th>Tareas P/E/C</th>
+              <th>Avance</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of tramites; track item.id) {
+              <tr [class.row-error]="hasWorkflowError(item.workflowError)">
+                <td><strong>{{ item.code }}</strong></td>
+                <td>{{ item.policyName }}</td>
+                <td><span class="badge" [class]="statusClass(item.status)">{{ statusLabel(item.status) }}</span></td>
+                <td>{{ item.currentActivity }}</td>
+                <td>{{ item.responsible }}</td>
+                <td>
+                  {{ item.pendingTaskCount ?? 0 }} /
+                  {{ item.inProgressTaskCount ?? 0 }} /
+                  {{ item.completedTaskCount ?? 0 }}
+                </td>
+                <td>{{ item.progress }}%</td>
+                <td class="actions">
+                  <button type="button" class="btn btn-secondary btn-sm" (click)="openTrace(item)">Seguimiento</button>
+                  <a [routerLink]="['/tramites', item.id]" class="btn btn-secondary btn-sm">Detalle</a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>
+
+@if (traceModalOpen) {
+  <div class="modal-backdrop" (click)="closeTraceModal()">
+    <div class="modal-panel trace-modal" (click)="$event.stopPropagation()">
+      <h2>Seguimiento del trámite</h2>
+      @if (traceLoading) {
+        <div class="loading">Cargando...</div>
+      } @else if (traceError) {
+        <div class="alert error">{{ traceError }}</div>
+      } @else if (traceData) {
+        @if (hasWorkflowError(traceData.workflowError)) {
+          <div class="alert error">{{ traceData.workflowError }}</div>
+        }
+        <div class="trace-summary">
+          <div><span>Código</span><strong>{{ traceData.code }}</strong></div>
+          <div><span>Estado</span><strong>{{ statusLabel(traceData.status) }}</strong></div>
+          <div><span>Actividad</span><strong>{{ traceData.currentActivity }}</strong></div>
+          <div><span>Responsable</span><strong>{{ traceData.responsible }}</strong></div>
+          <div><span>Pendientes</span><strong>{{ traceData.taskCounts?.pending ?? 0 }}</strong></div>
+          <div><span>En curso</span><strong>{{ traceData.taskCounts?.inProgress ?? 0 }}</strong></div>
+          <div><span>Completadas</span><strong>{{ traceData.taskCounts?.completed ?? 0 }}</strong></div>
+        </div>
+
+        @if (traceData.events?.length) {
+          <h3>Eventos recientes</h3>
+          <ul class="timeline-list">
+            @for (event of traceData.events; track $index) {
+              <li [class]="traceEventClass(event.eventType)">
+                <strong>{{ traceTitle(event) }}</strong>
+                <span class="timeline-date">{{ formatDate(event.occurredAt || event.startedAt) }}</span>
+                <div class="timeline-meta">{{ traceUser(event) }}</div>
+              </li>
+            }
+          </ul>
+        }
+      }
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" (click)="closeTraceModal()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+}

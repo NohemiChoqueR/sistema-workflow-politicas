@@ -1,0 +1,83 @@
+<div class="page-crud">
+  <div class="page-toolbar">
+    <div>
+      <h1>Auditoría / Bitácora</h1>
+      <p>Registro centralizado de acciones del sistema BPM</p>
+    </div>
+    <div class="toolbar-actions">
+      <button type="button" class="btn btn-secondary" (click)="exportCsv()">Exportar CSV</button>
+      <button type="button" class="btn btn-secondary" (click)="refresh()">Actualizar</button>
+    </div>
+  </div>
+
+  @if (message) {
+    <div class="alert success">{{ message }}</div>
+  }
+  @if (error) {
+    <div class="alert error">{{ error }}</div>
+  }
+
+  <div class="filters-row bitacora-filters">
+    <input
+      type="search"
+      class="search-input"
+      placeholder="Usuario (nombre o login)..."
+      [(ngModel)]="filterUsername"
+    />
+    <select class="filter-select" [(ngModel)]="filterModule">
+      <option value="">Todos los módulos</option>
+      @for (module of modules.slice(1); track module) {
+        <option [value]="module">{{ module }}</option>
+      }
+    </select>
+    <select class="filter-select" [(ngModel)]="filterAction">
+      <option value="">Todas las acciones</option>
+      @for (action of actionOptions; track action) {
+        <option [value]="action">{{ actionLabel(action) }}</option>
+      }
+    </select>
+    <input type="date" class="filter-date" [(ngModel)]="filterDateFrom" title="Fecha desde" />
+    <input type="date" class="filter-date" [(ngModel)]="filterDateTo" title="Fecha hasta" />
+    <button type="button" class="btn btn-primary" (click)="applyFilters()">Filtrar</button>
+    <button type="button" class="btn btn-secondary" (click)="clearFilters()">Limpiar</button>
+  </div>
+
+  <div class="data-card">
+    @if (loading) {
+      <div class="loading">Cargando bitácora...</div>
+    } @else if (!entries.length) {
+      <div class="empty-state">No hay registros en la bitácora</div>
+    } @else {
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Usuario</th>
+              <th>Módulo</th>
+              <th>Acción</th>
+              <th>Descripción</th>
+              <th>Resultado</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (entry of entries; track entry.id || entry.createdAt + entry.action + entry.description) {
+              <tr [class.is-error]="entry.resultado === 'ERROR'">
+                <td>{{ formatDate(entry.createdAt) }}</td>
+                <td>{{ displayUser(entry) }}</td>
+                <td>{{ entry.module }}</td>
+                <td>{{ actionLabel(entry.action) }}</td>
+                <td>{{ entry.description }}</td>
+                <td>
+                  <span class="result-badge" [class.error]="entry.resultado === 'ERROR'">
+                    {{ resultadoLabel(entry) }}
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>

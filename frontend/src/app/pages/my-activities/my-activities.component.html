@@ -1,0 +1,196 @@
+<div class="page-crud">
+  <div class="page-toolbar">
+    <div>
+      <h1>Mis tareas</h1>
+      <p>Bandeja del funcionario — tareas asignadas por usuario, rol o departamento</p>
+      @if (lastUpdated) {
+        <p class="sync-hint">Actualización automática cada 12 s · Última: {{ formatDate(lastUpdated.toISOString()) }}</p>
+      }
+    </div>
+    <button type="button" class="btn btn-secondary" (click)="load()">Actualizar</button>
+  </div>
+
+  <div class="filters data-card">
+    <div class="filter-row">
+      <label>
+        Estado
+        <select [(ngModel)]="filterStatus" (change)="applyFilters()">
+          @for (opt of statusFilterOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </label>
+      <label>
+        Política
+        <select [(ngModel)]="filterPolicyId" (change)="applyFilters()">
+          <option value="">Todas las políticas</option>
+          @for (p of policies; track p.id) {
+            <option [value]="p.id">{{ p.name }}</option>
+          }
+        </select>
+      </label>
+      <label>
+        Código trámite
+        <input type="text" [(ngModel)]="filterTramiteCode" placeholder="TRM-..." (keyup.enter)="applyFilters()" />
+      </label>
+      <label>
+        Prioridad
+        <select [(ngModel)]="filterPriority" (change)="applyFilters()">
+          @for (opt of priorityFilterOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </label>
+      <button type="button" class="btn btn-secondary btn-sm" (click)="clearFilters()">Limpiar</button>
+    </div>
+  </div>
+
+  @if (message) { <div class="alert success">{{ message }}</div> }
+  @if (error) { <div class="alert error">{{ error }}</div> }
+
+  @if (loading) {
+    <div class="loading">Cargando tareas...</div>
+  } @else if (!hasAnyTasks()) {
+    <div class="empty-state">No tienes tareas asignadas con los filtros actuales.</div>
+  } @else {
+    @for (section of sections; track section.key) {
+      @if (section.items.length) {
+        <section class="task-section data-card">
+          <h2>{{ section.title }} <span class="count">({{ section.items.length }})</span></h2>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Tarea</th>
+                  <th>Trámite</th>
+                  <th>Política</th>
+                  <th>Estado</th>
+                  <th>Prioridad</th>
+                  <th>Asignación / toma</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (activity of section.items; track activity.tramiteId + '-' + activity.taskOrder) {
+                  <tr [class.row-alert]="activity.inboxCategory === 'ERROR' || activity.inboxCategory === 'OBSERVADA'">
+                    <td>
+                      {{ activity.activityName }}
+                      @if (categoryBadge(activity); as badge) {
+                        <span class="badge-alert">{{ badge }}</span>
+                      }
+                      @if (activity.workflowError) {
+                        <small class="error-hint">{{ activity.workflowError }}</small>
+                      }
+                    </td>
+                    <td><strong>{{ activity.code }}</strong></td>
+                    <td>{{ activity.policyName }}</td>
+                    <td>{{ taskStatusLabel(activity.status) }}</td>
+                    <td>{{ priorityLabel(activity.priority) }}</td>
+                    <td>
+                      <div>{{ formatDate(activity.assignedAt) }}</div>
+                      @if (activity.takenAt) {
+                        <small>Tomada: {{ formatDate(activity.takenAt) }}@if (activity.takenBy) { · {{ activity.takenBy }} }</small>
+                      }
+                    </td>
+                    <td class="actions">
+                      <a [routerLink]="['/tramites', activity.tramiteId]" class="btn btn-secondary btn-sm">Detalle</a>
+                      <button
+                        type="button"
+                        class="btn btn-ai btn-sm"
+                        [disabled]="isAssistantLoading(activity)"
+                        (click)="openTaskAssistant(activity)"
+                      >
+                        {{ isAssistantLoading(activity) ? 'Analizando...' : 'Asistente IA' }}
+                      </button>
+                      @if (activity.canTake) {
+                        <button
+                          type="button"
+                          class="btn btn-primary btn-sm"
+                          [disabled]="isTaking(activity)"
+                          (click)="takeTask(activity)"
+                        >
+                          {{ isTaking(activity) ? 'Tomando…' : 'Tomar' }}
+                        </button>
+                      }
+                      @if (activity.canComplete) {
+                        <button type="button" class="btn btn-primary btn-sm" (click)="openForm(activity)">Completar</button>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      }
+    }
+  }
+</div>
+
+@if (assistantModalOpen) {
+  <div class="modal-backdrop" (click)="closeTaskAssistant()">
+    <div class="modal-panel task-assistant-modal" (click)="$event.stopPropagation()">
+      <h2>Asistente Inteligente de Tarea</h2>
+      @if (assistantActivity) {
+        <p class="assistant-context">
+          <strong>{{ assistantActivity.activityName }}</strong>
+          · {{ assistantActivity.code }}
+          · {{ taskStatusLabel(assistantActivity.status) }}
+        </p>
+      }
+
+      @if (assistantLoadingKey) {
+        <div class="loading">Analizando tarea...</div>
+      } @else if (assistantError && !assistantResult) {
+        <div class="alert error">{{ assistantError }}</div>
+      } @else if (assistantResult) {
+        @if (showAssistantFallbackNotice()) {
+          <div class="alert warning assistant-fallback-hint">
+            Respuesta generada con respaldo local.
+          </div>
+        }
+        @if (assistantError) {
+          <div class="alert warning">{{ assistantError }}</div>
+        }
+
+        <div class="assistant-block">
+          <h3>Resumen</h3>
+          <p>{{ assistantResult.summary }}</p>
+        </div>
+
+        @if (assistantResult.importantData?.length) {
+          <div class="assistant-block">
+            <h3>Datos importantes</h3>
+            <ul>
+              @for (item of assistantResult.importantData; track item) {
+                <li>{{ item }}</li>
+              }
+            </ul>
+          </div>
+        }
+
+        @if (assistantResult.missingData?.length) {
+          <div class="assistant-block">
+            <h3>Datos faltantes o por verificar</h3>
+            <ul>
+              @for (item of assistantResult.missingData; track item) {
+                <li>{{ item }}</li>
+              }
+            </ul>
+          </div>
+        }
+
+        <div class="assistant-block">
+          <h3>Acción recomendada</h3>
+          <p>{{ assistantResult.recommendedAction }}</p>
+        </div>
+
+        <p class="assistant-source">Fuente: {{ assistantSourceLabel() }}</p>
+      }
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" (click)="closeTaskAssistant()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+}

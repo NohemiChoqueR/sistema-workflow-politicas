@@ -1,0 +1,63 @@
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-brand">
+      <i class="material-icons brand-icon">account_tree</i>
+      <h1>Workflow Políticas</h1>
+      <p>SISTEMA DE GESTIÓN DE POLÍTICAS DE NEGOCIO BASADO EN WORKFLOW</p>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" class="login-form">
+      <label>
+        <span>Usuario</span>
+        <input type="text" name="username" [(ngModel)]="username" autocomplete="username" placeholder="Ingrese su usuario" />
+      </label>
+      <label>
+        <span>Contraseña</span>
+        <input type="password" name="password" [(ngModel)]="password" autocomplete="current-password" placeholder="••••••••" />
+      </label>
+
+      @if (error) {
+        <p class="error-msg">{{ error }}</p>
+      }
+
+      <button type="submit" class="btn-primary" [disabled]="loading">
+        {{ loading ? 'Ingresando...' : 'Iniciar sesión' }}
+      </button>
+    </form>
+
+    <section class="demo-credentials" aria-label="Credenciales ">
+      <button
+        type="button"
+        class="demo-toggle"
+        (click)="toggleDemoSection()"
+        [attr.aria-expanded]="demoSectionOpen"
+      >
+        <i class="material-icons" aria-hidden="true">{{ demoSectionOpen ? 'expand_less' : 'expand_more' }}</i>
+        {{ demoSectionOpen ? 'Ocultar usuarios' : 'Mostrar usuarios ' }}
+      </button>
+
+      @if (demoSectionOpen) {
+        <div class="demo-panel">
+          <h2 class="demo-title">Credenciales</h2>
+          <p class="demo-subtitle">Usuarios para ingresar</p>
+
+          @for (account of demoAccounts; track account.username) {
+            <div class="demo-account">
+              <span class="demo-role">{{ account.role }}</span>
+              <dl class="demo-fields">
+                <div class="demo-field">
+                  <dt>Usuario</dt>
+                  <dd>{{ account.username }}</dd>
+                </div>
+                <div class="demo-field">
+                  <dt>Contraseña</dt>
+                  <dd>{{ account.password }}</dd>
+                </div>
+              </dl>
+            </div>
+          }
+        </div>
+      }
+    </section>
+  </div>
+</div>

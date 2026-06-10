@@ -1,0 +1,133 @@
+<div class="page-crud">
+  <div class="page-toolbar">
+    <div>
+      <a routerLink="/policies" class="back-link">← Volver a políticas</a>
+      <h1>Detalle de política de negocio</h1>
+    </div>
+    @if (policy) {
+      <div class="toolbar-actions">
+        <span class="badge" [class]="statusClass(policy.status)">{{ statusLabel(policy.status) }}</span>
+        @if (canViewDesigner) {
+          <a [routerLink]="['/workflow-designer', policy.id]" class="btn btn-secondary">Diseñar workflow</a>
+        }
+        @if (policy.status !== 'ACTIVE') {
+          <button type="button" class="btn btn-primary" [disabled]="actionLoading" (click)="activate()">
+            Activar política
+          </button>
+        }
+        @if (policy.status === 'ACTIVE') {
+          <button type="button" class="btn btn-secondary" [disabled]="actionLoading" (click)="deactivate()">
+            Desactivar política
+          </button>
+        }
+      </div>
+    }
+  </div>
+
+  @if (message) { <div class="alert success">{{ message }}</div> }
+  @if (error) { <div class="alert error">{{ error }}</div> }
+
+  @if (loading) {
+    <div class="loading">Cargando detalle...</div>
+  } @else if (policy) {
+    <div class="detail-grid">
+      <section class="data-card info-card">
+        <h2>Información general</h2>
+        <dl class="detail-list">
+          <dt>Nombre</dt><dd>{{ policy.name }}</dd>
+          <dt>Descripción</dt><dd>{{ policy.description || '—' }}</dd>
+          <dt>Estado</dt><dd>{{ statusLabel(policy.status) }}</dd>
+          <dt>Dueño de proceso / Responsable</dt><dd>{{ policy.responsible || '—' }}</dd>
+          <dt>Creado por</dt><dd>{{ policy.createdBy || '—' }}</dd>
+          <dt>Fecha de creación</dt><dd>{{ (policy.createdAt | date:'medium') || '—' }}</dd>
+          <dt>Versión</dt><dd>{{ policy.version || '1.0' }}</dd>
+        </dl>
+      </section>
+
+      <section class="data-card">
+        <div class="section-head">
+          <h2>Actividades del workflow</h2>
+          <span class="count-badge">{{ policy.activityCount ?? policy.activities?.length ?? 0 }} actividades</span>
+          @if (canManageActivities) {
+            <a [routerLink]="['/policies', policy.id, 'actividades']" class="btn btn-primary btn-sm">Gestionar actividades</a>
+          } @else {
+            <a [routerLink]="['/policies', policy.id, 'actividades']" class="btn btn-secondary btn-sm">Ver actividades</a>
+          }
+        </div>
+        @if (!policy.activities?.length) {
+          <div class="empty-state">Esta política aún no tiene actividades configuradas.</div>
+        } @else {
+          <div class="table-wrap">
+            <table class="data-table compact">
+              <thead>
+                <tr><th>Orden</th><th>Actividad</th><th>Responsable</th><th>Tipo</th><th>Tiempo est.</th><th>Estado</th></tr>
+              </thead>
+              <tbody>
+                @for (a of previewActivities; track a.id || a.name + a.orderIndex) {
+                  <tr>
+                    <td>{{ a.orderIndex ?? '—' }}</td>
+                    <td>{{ a.name }}</td>
+                    <td>{{ a.responsibleName || '—' }}</td>
+                    <td>{{ activityTypeLabel(a.activityType) }}</td>
+                    <td>{{ a.estimatedTimeHours ? a.estimatedTimeHours + ' h' : '—' }}</td>
+                    <td>{{ activityStatusLabel(a.status) }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          @if ((policy.activityCount ?? policy.activities?.length ?? 0) > 3) {
+            <p class="more-hint">Mostrando las primeras 3 actividades del flujo.</p>
+          }
+        }
+      </section>
+
+      <section class="data-card">
+        <div class="section-head">
+          <h2>Conexiones del workflow</h2>
+          <span class="count-badge">{{ policy.transitionCount ?? policy.transitions?.length ?? 0 }} conexiones</span>
+          @if (canManageActivities) {
+            <a [routerLink]="['/policies', policy.id, 'transiciones']" class="btn btn-primary btn-sm">Gestionar conexiones</a>
+          } @else {
+            <a [routerLink]="['/policies', policy.id, 'transiciones']" class="btn btn-secondary btn-sm">Ver conexiones</a>
+          }
+        </div>
+        @if (!policy.transitions?.length) {
+          <div class="empty-state">Esta política aún no tiene conexiones entre actividades.</div>
+        } @else {
+          <div class="flow-preview compact">
+            @for (line of policy.flowPreview ?? []; track line + $index) {
+              <div class="flow-line" [class.connector]="line === '↓' || line.startsWith('├─')">{{ line }}</div>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="data-card">
+        @if (!policy.tramites?.length) {
+          <div class="empty-state">Aún no existen trámites iniciados con esta política.</div>
+        } @else {
+          <div class="table-wrap">
+            <table class="data-table compact">
+              <thead>
+                <tr><th>Código</th><th>Solicitante</th><th>Estado</th><th>Actividad actual</th><th>Responsable</th><th></th></tr>
+              </thead>
+              <tbody>
+                @for (t of policy.tramites; track t.id) {
+                  <tr>
+                    <td><strong>{{ t.code }}</strong></td>
+                    <td>{{ t.requesterName || '—' }}</td>
+                    <td>{{ tramiteStatusLabel(t.status ?? '') }}</td>
+                    <td>{{ t.currentActivity || '—' }}</td>
+                    <td>{{ t.responsible || '—' }}</td>
+                    <td><a [routerLink]="['/tramites', t.id]" class="btn btn-secondary btn-sm">Ver</a></td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </section>
+    </div>
+  }
+</div>
